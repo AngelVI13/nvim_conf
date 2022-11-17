@@ -18,3 +18,5 @@ vim.g.mapleader = " "
 vim.api.nvim_set_option("clipboard", "unnamedplus")
 
 vim.opt.completeopt = {"menu", "menuone", "noselect"}
+
+vim.opt.colorcolumn={"90", "120"}
