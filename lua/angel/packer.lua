@@ -2,7 +2,10 @@ vim.cmd [[packadd packer.nvim]]
 
 return require('packer').startup(function()
     use 'wbthomason/packer.nvim'
+    -- Theme
     use 'folke/tokyonight.nvim'
+    use 'ayu-theme/ayu-vim'
+    use "ellisonleao/gruvbox.nvim" 
 
     -- FZF
     use {
@@ -23,5 +26,16 @@ return require('packer').startup(function()
     use 'hrsh7th/cmp-path'
     use 'L3MON4D3/LuaSnip'
     use 'hrsh7th/nvim-cmp'
+
+    -- Todo highlihght
+    use {
+      "folke/todo-comments.nvim",
+      requires = "nvim-lua/plenary.nvim",
+      config = function()
+        require("todo-comments").setup {
+          signs = false,
+        }
+      end
+    }
 end)
 

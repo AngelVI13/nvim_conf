@@ -112,3 +112,12 @@ require('lspconfig')['gopls'].setup{
     flags = lsp_flags,
     capabilities = capabilities,
 }
+
+vim.api.nvim_create_autocmd('BufWritePre', {
+    pattern = { '*.go' },
+    callback = function()
+        vim.lsp.buf.formatting_sync()
+    end,
+    group = vim.api.nvim_create_augroup('GoFormatting', {}),
+})
+
