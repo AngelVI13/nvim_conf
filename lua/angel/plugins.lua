@@ -121,3 +121,42 @@ vim.api.nvim_create_autocmd('BufWritePre', {
     group = vim.api.nvim_create_augroup('GoFormatting', {}),
 })
 
+
+local opts = { noremap=true, silent=true }
+vim.keymap.set("n", "<F5>", "<Cmd>lua require'dap'.continue()<CR>", opts)
+vim.keymap.set("n", "<F10>", "<Cmd>lua require'dap'.step_over()<CR>", opts)
+vim.keymap.set("n", "<F11>", "<Cmd>lua require'dap'.step_into()<CR>", opts)
+vim.keymap.set("n", "<F12>", "<Cmd>lua require'dap'.step_out()<CR>", opts)
+vim.keymap.set("n", "<Leader>b", "<Cmd>lua require'dap'.toggle_breakpoint()<CR>", opts)
+vim.keymap.set("n", "<Leader>B", "<Cmd>lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>", opts)
+vim.keymap.set("n", "<Leader>lp", "<Cmd>lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>", opts)
+vim.keymap.set("n", "<Leader>dr", "<Cmd>lua require'dap'.repl.open()<CR>", opts)
+vim.keymap.set("n", "<Leader>dl", "<Cmd>lua require'dap'.run_last()<CR>", opts)
+vim.keymap.set("n", "<Leader>dt", "<Cmd>lua require'dap-go'.debug_test()<CR>", opts)
+vim.keymap.set("n", "<Leader>dk", "<Cmd>lua require'dap'.terminate()<CR>", opts)
+
+require('dap-go').setup()
+require('dapui').setup()
+require('nvim-dap-virtual-text').setup()
+
+local dap, dapui = require("dap"), require("dapui")
+dap.listeners.after.event_initialized["dapui_config"] = function()
+  dapui.open()
+end
+dap.listeners.before.event_terminated["dapui_config"] = function()
+  dapui.close()
+end
+dap.listeners.before.event_exited["dapui_config"] = function()
+  dapui.close()
+end
+
+local opts = { noremap=true, silent=true }
+vim.keymap.set("n", "<Leader>h", "<Cmd>lua require'harpoon.ui'.toggle_quick_menu()<CR>", opts)
+vim.keymap.set("n", "<Leader>1", "<Cmd>lua require'harpoon.ui'.nav_file(1)<CR>", opts)
+vim.keymap.set("n", "<Leader>2", "<Cmd>lua require'harpoon.ui'.nav_file(2)<CR>", opts)
+vim.keymap.set("n", "<Leader>3", "<Cmd>lua require'harpoon.ui'.nav_file(3)<CR>", opts)
+vim.keymap.set("n", "<Leader>4", "<Cmd>lua require'harpoon.ui'.nav_file(4)<CR>", opts)
+vim.keymap.set("n", "<Leader>]", "<Cmd>lua require'harpoon.ui'.nav_next()<CR>", opts)
+vim.keymap.set("n", "<Leader>[", "<Cmd>lua require'harpoon.ui'.nav_prev()<CR>", opts)
+
+require('harpoon').setup()

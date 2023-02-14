@@ -3,9 +3,13 @@ vim.cmd [[packadd packer.nvim]]
 return require('packer').startup(function()
     use 'wbthomason/packer.nvim'
     -- Theme
-    use 'folke/tokyonight.nvim'
+    -- use 'folke/tokyonight.nvim'
     use 'ayu-theme/ayu-vim'
     use "ellisonleao/gruvbox.nvim" 
+    use {
+      'https://gitlab.com/madyanov/gruber.vim',
+      as = 'gruber.vim'
+    }
 
     -- FZF
     use {
@@ -17,7 +21,17 @@ return require('packer').startup(function()
     }
     use 'nvim-lua/plenary.nvim'
     use 'BurntSushi/ripgrep'
-    use 'nvim-telescope/telescope.nvim'
+    use {
+        "nvim-telescope/telescope.nvim",
+        requires = {
+            { "nvim-telescope/telescope-live-grep-args.nvim" },
+        },
+        config = function()
+            require("telescope").load_extension("live_grep_args")
+        end
+    }
+
+    use 'ThePrimeagen/harpoon'
 
     -- LSP
     use 'neovim/nvim-lspconfig'
@@ -37,5 +51,14 @@ return require('packer').startup(function()
         }
       end
     }
+
+    use 'sbdchd/neoformat'
+
+    -- Debugger
+    use 'mfussenegger/nvim-dap'
+    use 'leoluz/nvim-dap-go'
+    use 'rcarriga/nvim-dap-ui'
+    use 'theHamsta/nvim-dap-virtual-text'
+    use 'nvim-telescope/telescope-dap.nvim'
 end)
 
