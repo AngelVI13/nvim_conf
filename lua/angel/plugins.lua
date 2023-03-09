@@ -113,11 +113,19 @@ require('lspconfig')['gopls'].setup{
     capabilities = capabilities,
 }
 
+
 vim.api.nvim_create_autocmd('BufWritePre', {
     pattern = { '*.go' },
     callback = function()
         vim.lsp.buf.formatting_sync()
-        vim.fn.execute(":!golines -m 80 -w " .. vim.fn.expand("%"))
+    end,
+    group = vim.api.nvim_create_augroup('GoFormatting', {}),
+})
+
+vim.api.nvim_create_autocmd('BufWritePost', {
+    pattern = { '*.go' },
+    callback = function()
+        vim.fn.execute("!golines -m 80 -w " .. vim.fn.expand("%"))
         vim.fn.execute(":e")
     end,
     group = vim.api.nvim_create_augroup('GoFormatting', {}),
