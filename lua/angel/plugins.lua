@@ -117,7 +117,7 @@ require('lspconfig')['gopls'].setup{
 vim.api.nvim_create_autocmd('BufWritePre', {
     pattern = { '*.go' },
     callback = function()
-        vim.lsp.buf.formatting_sync()
+        vim.lsp.buf.formatting_sync()  -- install goimports for better formatting
     end,
     group = vim.api.nvim_create_augroup('GoFormatting', {}),
 })
