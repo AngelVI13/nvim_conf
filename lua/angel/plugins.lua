@@ -107,12 +107,28 @@ require('lspconfig')['pyright'].setup{
     capabilities = capabilities,
 }
 
-require('lspconfig')['gopls'].setup{
-    on_attach = on_attach,
+require("lspconfig").gopls.setup({
+	cmd = { "gopls" },
+	settings = {
+		gopls = {
+			analyses = {
+				nilness = true,
+				unusedparams = true,
+				unusedwrite = true,
+				useany = true,
+                shadow = true,
+                unusedvariable = true,
+			},
+			experimentalPostfixCompletions = true,
+			gofumpt = true,
+			staticcheck = true,
+			usePlaceholders = true,
+		},
+	},
+	on_attach = on_attach,
     flags = lsp_flags,
     capabilities = capabilities,
-}
-
+})
 
 vim.api.nvim_create_autocmd('BufWritePre', {
     pattern = { '*.go' },
@@ -128,7 +144,7 @@ vim.api.nvim_create_autocmd('BufWritePost', {
         vim.fn.execute("!golines -m 80 -w " .. vim.fn.expand("%"))
         vim.fn.execute(":e")
     end,
-    group = vim.api.nvim_create_augroup('GoFormatting', {}),
+    group = vim.api.nvim_create_augroup('GoLinesFormatting', {}),
 })
 
 
