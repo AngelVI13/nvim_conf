@@ -120,9 +120,8 @@ require("lspconfig").gopls.setup({
                 unusedvariable = true,
 			},
 			experimentalPostfixCompletions = true,
-			gofumpt = true,
+			gofumpt = true,  -- requires gofumpt installed
 			staticcheck = true,
-			usePlaceholders = true,
 		},
 	},
 	on_attach = on_attach,
@@ -141,7 +140,7 @@ vim.api.nvim_create_autocmd('BufWritePre', {
 vim.api.nvim_create_autocmd('BufWritePost', {
     pattern = { '*.go' },
     callback = function()
-        vim.fn.execute("!golines -m 80 -w " .. vim.fn.expand("%"))
+        vim.fn.execute("!golines -m 90 -w " .. vim.fn.expand("%"))
         vim.fn.execute(":e")
     end,
     group = vim.api.nvim_create_augroup('GoLinesFormatting', {}),
