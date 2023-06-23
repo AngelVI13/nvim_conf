@@ -21,3 +21,5 @@ vim.opt.completeopt = {"menu", "menuone", "noselect"}
 
 vim.opt.colorcolumn={"80", "90", "120"}
 vim.opt.updatetime=250
+
+vim.opt.grepprg = "rg -nH"

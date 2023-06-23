@@ -107,6 +107,18 @@ require('lspconfig')['pyright'].setup{
     capabilities = capabilities,
 }
 
+require('lspconfig')['zls'].setup{
+    on_attach = on_attach,
+    flags = lsp_flags,
+    capabilities = capabilities,
+}
+
+require('lspconfig')['ocamllsp'].setup{
+    on_attach = on_attach,
+    flags = lsp_flags,
+    capabilities = capabilities,
+}
+
 require("lspconfig").gopls.setup({
 	cmd = { "gopls" },
 	settings = {
@@ -176,6 +188,7 @@ dap.listeners.before.event_exited["dapui_config"] = function()
 end
 
 local opts = { noremap=true, silent=true }
+vim.keymap.set("n", "<Leader>H", "<Cmd>lua require'harpoon.mark'.add_file()<CR>", opts)
 vim.keymap.set("n", "<Leader>h", "<Cmd>lua require'harpoon.ui'.toggle_quick_menu()<CR>", opts)
 vim.keymap.set("n", "<Leader>1", "<Cmd>lua require'harpoon.ui'.nav_file(1)<CR>", opts)
 vim.keymap.set("n", "<Leader>2", "<Cmd>lua require'harpoon.ui'.nav_file(2)<CR>", opts)
