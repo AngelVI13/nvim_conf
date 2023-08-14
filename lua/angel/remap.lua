@@ -20,7 +20,7 @@ nnoremap("<leader>fh", "<cmd>lua require('telescope.builtin').help_tags()<cr>")
 
 nnoremap("<leader>Q", "<cmd>e ~/.config/nvim<cr>")
 
-nnoremap("<leader>z", "<cmd>:50 vsplit .<cr><C-w>l")
+nnoremap("<leader>z", "<cmd>:60 vsplit .<cr><C-w>l")
 nnoremap("<leader>Z", "<C-w>o")
 
 nnoremap("<leader>o", "<cmd>:copen 5<cr>")
