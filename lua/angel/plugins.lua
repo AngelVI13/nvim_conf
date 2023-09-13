@@ -119,6 +119,27 @@ require('lspconfig')['ocamllsp'].setup{
     capabilities = capabilities,
 }
 
+local rf_root = "/home/angel/Documents/GeminiRf"
+
+local rf_pythonpath = {
+    rf_root .. "/test_scripts",
+    rf_root .. "/lib/controller",
+    rf_root .. "/resources",
+}
+
+require('lspconfig')['robotframework_ls'].setup{
+    on_attach = on_attach,
+    flags = lsp_flags,
+    capabilities = capabilities,
+    settings = {
+        robot = {
+            pythonpath = rf_pythonpath,
+            lint = {robocop = {enabled = true}},
+            variables = {execdir = os.getenv('PWD')},
+        },
+    },
+}
+
 require("lspconfig").gopls.setup({
 	cmd = { "gopls" },
 	settings = {
@@ -144,7 +165,7 @@ require("lspconfig").gopls.setup({
 vim.api.nvim_create_autocmd('BufWritePre', {
     pattern = { '*.go' },
     callback = function()
-        vim.lsp.buf.formatting_sync()  -- install goimports for better formatting
+        vim.lsp.buf.format({async = false})
     end,
     group = vim.api.nvim_create_augroup('GoFormatting', {}),
 })
