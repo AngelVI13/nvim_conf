@@ -56,10 +56,12 @@ return require('packer').startup(function()
     use 'sbdchd/neoformat'
 
     -- Debugger
-    use 'mfussenegger/nvim-dap'
-    use 'leoluz/nvim-dap-go'
-    use 'rcarriga/nvim-dap-ui'
-    use 'theHamsta/nvim-dap-virtual-text'
-    use 'nvim-telescope/telescope-dap.nvim'
+    -- use 'mfussenegger/nvim-dap'
+    -- use 'leoluz/nvim-dap-go'
+    -- use 'rcarriga/nvim-dap-ui'
+    -- use 'theHamsta/nvim-dap-virtual-text'
+    -- use 'nvim-telescope/telescope-dap.nvim'
+
+    use 'lewis6991/gitsigns.nvim'
 end)
 

@@ -124,6 +124,9 @@ local rf_root = "/home/angel/Documents/GeminiRf"
 local rf_pythonpath = {
     rf_root .. "/test_scripts",
     rf_root .. "/lib/controller",
+    rf_root .. "/lib/hil",
+    rf_root .. "/lib/system",
+    rf_root .. "/lib/common",
     rf_root .. "/resources",
 }
 
@@ -180,33 +183,33 @@ vim.api.nvim_create_autocmd('BufWritePost', {
 })
 
 
-local opts = { noremap=true, silent=true }
-vim.keymap.set("n", "<F5>", "<Cmd>lua require'dap'.continue()<CR>", opts)
-vim.keymap.set("n", "<F10>", "<Cmd>lua require'dap'.step_over()<CR>", opts)
-vim.keymap.set("n", "<F11>", "<Cmd>lua require'dap'.step_into()<CR>", opts)
-vim.keymap.set("n", "<F12>", "<Cmd>lua require'dap'.step_out()<CR>", opts)
-vim.keymap.set("n", "<Leader>b", "<Cmd>lua require'dap'.toggle_breakpoint()<CR>", opts)
-vim.keymap.set("n", "<Leader>B", "<Cmd>lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>", opts)
-vim.keymap.set("n", "<Leader>lp", "<Cmd>lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>", opts)
-vim.keymap.set("n", "<Leader>dr", "<Cmd>lua require'dap'.repl.open()<CR>", opts)
-vim.keymap.set("n", "<Leader>dl", "<Cmd>lua require'dap'.run_last()<CR>", opts)
-vim.keymap.set("n", "<Leader>dt", "<Cmd>lua require'dap-go'.debug_test()<CR>", opts)
-vim.keymap.set("n", "<Leader>dk", "<Cmd>lua require'dap'.terminate()<CR>", opts)
-
-require('dap-go').setup()
-require('dapui').setup()
-require('nvim-dap-virtual-text').setup()
-
-local dap, dapui = require("dap"), require("dapui")
-dap.listeners.after.event_initialized["dapui_config"] = function()
-  dapui.open()
-end
-dap.listeners.before.event_terminated["dapui_config"] = function()
-  dapui.close()
-end
-dap.listeners.before.event_exited["dapui_config"] = function()
-  dapui.close()
-end
+-- local opts = { noremap=true, silent=true }
+-- vim.keymap.set("n", "<F5>", "<Cmd>lua require'dap'.continue()<CR>", opts)
+-- vim.keymap.set("n", "<F10>", "<Cmd>lua require'dap'.step_over()<CR>", opts)
+-- vim.keymap.set("n", "<F11>", "<Cmd>lua require'dap'.step_into()<CR>", opts)
+-- vim.keymap.set("n", "<F12>", "<Cmd>lua require'dap'.step_out()<CR>", opts)
+-- vim.keymap.set("n", "<Leader>b", "<Cmd>lua require'dap'.toggle_breakpoint()<CR>", opts)
+-- vim.keymap.set("n", "<Leader>B", "<Cmd>lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>", opts)
+-- vim.keymap.set("n", "<Leader>lp", "<Cmd>lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>", opts)
+-- vim.keymap.set("n", "<Leader>dr", "<Cmd>lua require'dap'.repl.open()<CR>", opts)
+-- vim.keymap.set("n", "<Leader>dl", "<Cmd>lua require'dap'.run_last()<CR>", opts)
+-- vim.keymap.set("n", "<Leader>dt", "<Cmd>lua require'dap-go'.debug_test()<CR>", opts)
+-- vim.keymap.set("n", "<Leader>dk", "<Cmd>lua require'dap'.terminate()<CR>", opts)
+-- 
+-- require('dap-go').setup()
+-- require('dapui').setup()
+-- require('nvim-dap-virtual-text').setup()
+-- 
+-- local dap, dapui = require("dap"), require("dapui")
+-- dap.listeners.after.event_initialized["dapui_config"] = function()
+--   dapui.open()
+-- end
+-- dap.listeners.before.event_terminated["dapui_config"] = function()
+--   dapui.close()
+-- end
+-- dap.listeners.before.event_exited["dapui_config"] = function()
+--   dapui.close()
+-- end
 
 local opts = { noremap=true, silent=true }
 vim.keymap.set("n", "<Leader>H", "<Cmd>lua require'harpoon.mark'.add_file()<CR>", opts)
@@ -219,3 +222,4 @@ vim.keymap.set("n", "<Leader>]", "<Cmd>lua require'harpoon.ui'.nav_next()<CR>", 
 vim.keymap.set("n", "<Leader>[", "<Cmd>lua require'harpoon.ui'.nav_prev()<CR>", opts)
 
 require('harpoon').setup()
+require('gitsigns').setup()
