@@ -10,6 +10,7 @@ return require('packer').startup(function()
       'https://gitlab.com/madyanov/gruber.vim',
       as = 'gruber.vim'
     }
+    use({ 'https://github.com/bignimbus/pop-punk.vim', as = 'pop-punk.vim' })
 
     -- FZF
     use {
@@ -62,6 +63,6 @@ return require('packer').startup(function()
     -- use 'theHamsta/nvim-dap-virtual-text'
     -- use 'nvim-telescope/telescope-dap.nvim'
 
-    use 'lewis6991/gitsigns.nvim'
+    use 'joerdav/templ.vim'
 end)
 

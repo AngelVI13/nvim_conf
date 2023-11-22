@@ -165,6 +165,7 @@ require("lspconfig").gopls.setup({
     capabilities = capabilities,
 })
 
+
 vim.api.nvim_create_autocmd('BufWritePre', {
     pattern = { '*.go' },
     callback = function()
@@ -181,6 +182,14 @@ vim.api.nvim_create_autocmd('BufWritePost', {
     end,
     group = vim.api.nvim_create_augroup('GoLinesFormatting', {}),
 })
+
+-- additional filetypes
+vim.filetype.add({
+ extension = {
+  templ = "templ",
+ },
+})
+require('lspconfig').templ.setup{}
 
 
 -- local opts = { noremap=true, silent=true }
@@ -222,4 +231,4 @@ vim.keymap.set("n", "<Leader>]", "<Cmd>lua require'harpoon.ui'.nav_next()<CR>", 
 vim.keymap.set("n", "<Leader>[", "<Cmd>lua require'harpoon.ui'.nav_prev()<CR>", opts)
 
 require('harpoon').setup()
-require('gitsigns').setup()
+-- require('gitsigns').setup()
