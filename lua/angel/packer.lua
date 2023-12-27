@@ -3,14 +3,11 @@ vim.cmd [[packadd packer.nvim]]
 return require('packer').startup(function()
     use 'wbthomason/packer.nvim'
     -- Theme
-    -- use 'folke/tokyonight.nvim'
-    use 'ayu-theme/ayu-vim'
     use "ellisonleao/gruvbox.nvim" 
     use {
       'https://gitlab.com/madyanov/gruber.vim',
       as = 'gruber.vim'
     }
-    use({ 'https://github.com/bignimbus/pop-punk.vim', as = 'pop-punk.vim' })
 
     -- FZF
     use {

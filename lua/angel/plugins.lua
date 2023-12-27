@@ -67,9 +67,10 @@ local capabilities = require('cmp_nvim_lsp').default_capabilities()
 local opts = { noremap=true, silent=true }
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, opts)
 vim.keymap.set('n', '<leader>E', "<cmd>Telescope diagnostics<cr>", opts)
-vim.keymap.set('n', '[[', vim.diagnostic.goto_prev, opts)
-vim.keymap.set('n', ']]', vim.diagnostic.goto_next, opts)
+vim.keymap.set('n', '<leader>{', vim.diagnostic.goto_prev, opts)
+vim.keymap.set('n', '<leader>}', vim.diagnostic.goto_next, opts)
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, opts)
+vim.keymap.set('n', '<leader>t', "<cmd>TodoTelescope<cr>", opts)
 
 -- Use an on_attach function to only map the following keys
 -- after the language server attaches to the current buffer
@@ -87,6 +88,7 @@ local on_attach = function(client, bufnr)
   vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
   vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
   vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, bufopts)
+  vim.keymap.set('i', '<C-k>', vim.lsp.buf.signature_help, bufopts)
   vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, bufopts)
   vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, bufopts)
   vim.keymap.set('n', '<leader>wl', function()
@@ -119,24 +121,12 @@ require('lspconfig')['ocamllsp'].setup{
     capabilities = capabilities,
 }
 
-local rf_root = "/home/angel/Documents/GeminiRf"
-
-local rf_pythonpath = {
-    rf_root .. "/test_scripts",
-    rf_root .. "/lib/controller",
-    rf_root .. "/lib/hil",
-    rf_root .. "/lib/system",
-    rf_root .. "/lib/common",
-    rf_root .. "/resources",
-}
-
 require('lspconfig')['robotframework_ls'].setup{
     on_attach = on_attach,
     flags = lsp_flags,
     capabilities = capabilities,
     settings = {
         robot = {
-            pythonpath = rf_pythonpath,
             lint = {robocop = {enabled = true}},
             variables = {execdir = os.getenv('PWD')},
         },
@@ -191,7 +181,6 @@ vim.filetype.add({
 })
 require('lspconfig').templ.setup{}
 
-
 -- local opts = { noremap=true, silent=true }
 -- vim.keymap.set("n", "<F5>", "<Cmd>lua require'dap'.continue()<CR>", opts)
 -- vim.keymap.set("n", "<F10>", "<Cmd>lua require'dap'.step_over()<CR>", opts)
@@ -227,6 +216,7 @@ vim.keymap.set("n", "<Leader>1", "<Cmd>lua require'harpoon.ui'.nav_file(1)<CR>",
 vim.keymap.set("n", "<Leader>2", "<Cmd>lua require'harpoon.ui'.nav_file(2)<CR>", opts)
 vim.keymap.set("n", "<Leader>3", "<Cmd>lua require'harpoon.ui'.nav_file(3)<CR>", opts)
 vim.keymap.set("n", "<Leader>4", "<Cmd>lua require'harpoon.ui'.nav_file(4)<CR>", opts)
+vim.keymap.set("n", "<Leader>5", "<Cmd>lua require'harpoon.ui'.nav_file(5)<CR>", opts)
 vim.keymap.set("n", "<Leader>]", "<Cmd>lua require'harpoon.ui'.nav_next()<CR>", opts)
 vim.keymap.set("n", "<Leader>[", "<Cmd>lua require'harpoon.ui'.nav_prev()<CR>", opts)
 

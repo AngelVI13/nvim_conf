@@ -79,11 +79,6 @@ _G.packer_plugins = {
     path = "/home/angel/.local/share/nvim/site/pack/packer/start/LuaSnip",
     url = "https://github.com/L3MON4D3/LuaSnip"
   },
-  ["ayu-vim"] = {
-    loaded = true,
-    path = "/home/angel/.local/share/nvim/site/pack/packer/start/ayu-vim",
-    url = "https://github.com/ayu-theme/ayu-vim"
-  },
   ["cmp-buffer"] = {
     loaded = true,
     path = "/home/angel/.local/share/nvim/site/pack/packer/start/cmp-buffer",
@@ -143,11 +138,6 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/angel/.local/share/nvim/site/pack/packer/start/plenary.nvim",
     url = "https://github.com/nvim-lua/plenary.nvim"
-  },
-  ["pop-punk.vim"] = {
-    loaded = true,
-    path = "/home/angel/.local/share/nvim/site/pack/packer/start/pop-punk.vim",
-    url = "https://github.com/bignimbus/pop-punk.vim"
   },
   ripgrep = {
     loaded = true,
