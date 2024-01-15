@@ -67,8 +67,8 @@ local capabilities = require('cmp_nvim_lsp').default_capabilities()
 local opts = { noremap=true, silent=true }
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, opts)
 vim.keymap.set('n', '<leader>E', "<cmd>Telescope diagnostics<cr>", opts)
-vim.keymap.set('n', '<leader>{', vim.diagnostic.goto_prev, opts)
-vim.keymap.set('n', '<leader>}', vim.diagnostic.goto_next, opts)
+vim.keymap.set('n', '<leader>[', vim.diagnostic.goto_prev, opts)
+vim.keymap.set('n', '<leader>]', vim.diagnostic.goto_next, opts)
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, opts)
 vim.keymap.set('n', '<leader>t', "<cmd>TodoTelescope<cr>", opts)
 
@@ -181,6 +181,37 @@ vim.filetype.add({
 })
 require('lspconfig').templ.setup{}
 
+require('lspconfig').lua_ls.setup{
+  on_init = function(client)
+    local path = client.workspace_folders[1].name
+    if not vim.loop.fs_stat(path..'/.luarc.json') and not vim.loop.fs_stat(path..'/.luarc.jsonc') then
+      client.config.settings = vim.tbl_deep_extend('force', client.config.settings, {
+        Lua = {
+          runtime = {
+            -- Tell the language server which version of Lua you're using
+            -- (most likely LuaJIT in the case of Neovim)
+            version = 'LuaJIT'
+          },
+          -- Make the server aware of Neovim runtime files
+          workspace = {
+            checkThirdParty = false,
+            library = {
+              vim.env.VIMRUNTIME
+              -- "${3rd}/luv/library"
+              -- "${3rd}/busted/library",
+            }
+            -- or pull in all of 'runtimepath'. NOTE: this is a lot slower
+            -- library = vim.api.nvim_get_runtime_file("", true)
+          }
+        }
+      })
+
+      client.notify("workspace/didChangeConfiguration", { settings = client.config.settings })
+    end
+    return true
+  end
+}
+
 -- local opts = { noremap=true, silent=true }
 -- vim.keymap.set("n", "<F5>", "<Cmd>lua require'dap'.continue()<CR>", opts)
 -- vim.keymap.set("n", "<F10>", "<Cmd>lua require'dap'.step_over()<CR>", opts)
@@ -217,8 +248,8 @@ vim.keymap.set("n", "<Leader>2", "<Cmd>lua require'harpoon.ui'.nav_file(2)<CR>",
 vim.keymap.set("n", "<Leader>3", "<Cmd>lua require'harpoon.ui'.nav_file(3)<CR>", opts)
 vim.keymap.set("n", "<Leader>4", "<Cmd>lua require'harpoon.ui'.nav_file(4)<CR>", opts)
 vim.keymap.set("n", "<Leader>5", "<Cmd>lua require'harpoon.ui'.nav_file(5)<CR>", opts)
-vim.keymap.set("n", "<Leader>]", "<Cmd>lua require'harpoon.ui'.nav_next()<CR>", opts)
-vim.keymap.set("n", "<Leader>[", "<Cmd>lua require'harpoon.ui'.nav_prev()<CR>", opts)
+vim.keymap.set("n", "<Leader>}", "<Cmd>lua require'harpoon.ui'.nav_next()<CR>", opts)
+vim.keymap.set("n", "<Leader>{", "<Cmd>lua require'harpoon.ui'.nav_prev()<CR>", opts)
 
 require('harpoon').setup()
 
@@ -230,3 +261,19 @@ for type, icon in pairs(signs) do
     local hl = "DiagnosticSign" .. type
     vim.fn.sign_define(hl, { text = icon, texthl= hl, numhl = hl })
 end
+
+
+vim.api.nvim_create_user_command('CenterWindow',
+  function()
+      vim.cmd("60 vsplit")
+      vim.cmd("wincmd w")
+  end,
+  { nargs = 0 }
+)
+
+vim.api.nvim_create_user_command('OpenHarpoon1',
+  function()
+      require('harpoon.ui').nav_file(1)
+  end,
+  { nargs = 0 }
+)
