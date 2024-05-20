@@ -85,7 +85,7 @@ local on_attach = function(client, bufnr)
   vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
   vim.keymap.set('n', 'gt', vim.lsp.buf.type_definition, bufopts)
   vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
-  vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
+  -- vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
   vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
   vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, bufopts)
   vim.keymap.set('i', '<C-k>', vim.lsp.buf.signature_help, bufopts)
@@ -121,17 +121,34 @@ require('lspconfig')['ocamllsp'].setup{
     capabilities = capabilities,
 }
 
+require('lspconfig')['hls'].setup{
+  filetypes = { 'haskell', 'lhaskell', 'cabal' },
+}
+
+local rf_root = "/home/angel/Documents/RfGemini/GeminiRf/"
+
+local rf_pythonpath = {
+    rf_root .. "/test_scripts",
+    rf_root .. "/lib/controller",
+    rf_root .. "/lib/hil",
+    rf_root .. "/lib/system",
+    rf_root .. "/lib/common",
+    rf_root .. "/resources",
+}
+
 require('lspconfig')['robotframework_ls'].setup{
     on_attach = on_attach,
     flags = lsp_flags,
     capabilities = capabilities,
     settings = {
         robot = {
+            pythonpath = rf_pythonpath,
             lint = {robocop = {enabled = true}},
             variables = {execdir = os.getenv('PWD')},
         },
     },
 }
+
 
 require("lspconfig").gopls.setup({
 	cmd = { "gopls" },
@@ -252,6 +269,29 @@ vim.keymap.set("n", "<Leader>}", "<Cmd>lua require'harpoon.ui'.nav_next()<CR>", 
 vim.keymap.set("n", "<Leader>{", "<Cmd>lua require'harpoon.ui'.nav_prev()<CR>", opts)
 
 require('harpoon').setup()
+
+require("oil").setup()
+
+local trouble = require("trouble.providers.telescope")
+
+local telescope = require("telescope")
+
+telescope.setup {
+  defaults = {
+    mappings = {
+      i = { ["<c-t>"] = trouble.open_with_trouble },
+      n = { ["<c-t>"] = trouble.open_with_trouble },
+    },
+  },
+}
+vim.keymap.set("n", "<leader>xx", function() require("trouble").toggle() end)
+vim.keymap.set("n", "<leader>xw", function() require("trouble").toggle("workspace_diagnostics") end)
+vim.keymap.set("n", "<leader>xd", function() require("trouble").toggle("document_diagnostics") end)
+vim.keymap.set("n", "<leader>xq", function() require("trouble").toggle("quickfix") end)
+vim.keymap.set("n", "<leader>xl", function() require("trouble").toggle("loclist") end)
+vim.keymap.set("n", "gr", function() require("trouble").toggle("lsp_references") end)
+
+vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle)
 
 -- this is for diagnositcs signs on the line number column
 -- use this to beautify the plain E W signs to more fun ones

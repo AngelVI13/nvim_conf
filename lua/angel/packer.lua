@@ -61,5 +61,9 @@ return require('packer').startup(function()
     -- use 'nvim-telescope/telescope-dap.nvim'
 
     use 'joerdav/templ.vim'
+    use 'folke/trouble.nvim'
+    use 'nvim-tree/nvim-web-devicons'
+    use 'stevearc/oil.nvim'
+    use 'mbbill/undotree'
 end)
 
