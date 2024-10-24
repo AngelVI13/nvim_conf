@@ -25,7 +25,8 @@ vim.g.maplocalleader = "\\"
 require("lazy").setup({
   spec = {
 	{ "blazkowolf/gruber-darker.nvim" },
-	{ 'nvim-treesitter/nvim-treesitter', lazy = true },
+    -- { 'https://gitlab.com/madyanov/gruber.vim' },
+	-- { 'nvim-treesitter/nvim-treesitter', lazy = true },
 	{ 'nvim-lua/plenary.nvim' },
 	{ 'BurntSushi/ripgrep' },
 
@@ -58,12 +59,13 @@ require("lazy").setup({
 	{ 'mbbill/undotree' },
 	{ 'neovim/nvim-lspconfig' },
 	{ 'hrsh7th/nvim-cmp',
-		lazy = true,
+		-- lazy = true,
 		dependencies = {
 			"hrsh7th/cmp-nvim-lsp",
 			"hrsh7th/cmp-buffer",
 			'hrsh7th/cmp-path',
 			'L3MON4D3/LuaSnip',
+            'saadparwaiz1/cmp_luasnip',
 		},
 	},
 	{ "nvim-telescope/telescope.nvim" },
@@ -81,30 +83,25 @@ require("lazy").setup({
   },
   -- Configure any other settings here. See the documentation for more details.
   -- automatically check for plugin updates
-  checker = { enabled = true },
+  -- checker = { enabled = true },
 })
 
 vim.opt.background = "dark"
+-- vim.cmd("colorscheme gruber")
 vim.cmd("colorscheme gruber-darker")
 
 -- ----------------
 
-require'nvim-treesitter.configs'.setup {
-  -- A list of parser names, or "all"
-  ensure_installed = { "c", "cpp", "diff", "json", "lua", "go", "python", "typescript", "yaml"},
-
-  -- Install parsers synchronously (only applied to `ensure_installed`)
-  sync_install = false,
-
-  -- Automatically install missing parsers when entering buffer
-  -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
-  auto_install = true,
-
-  highlight = {
-    -- `false` will disable the whole extension
-    enable = true,
-  },
-}
+-- require'nvim-treesitter.configs'.setup {
+--   -- Automatically install missing parsers when entering buffer
+--   -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
+--   auto_install = true,
+-- 
+--   highlight = {
+--     -- `false` will disable the whole extension
+--     enable = true,
+--   },
+-- }
 
 
 -- LSP
@@ -210,6 +207,14 @@ require('lspconfig')['ocamllsp'].setup{
     on_attach = on_attach,
     flags = lsp_flags,
     capabilities = capabilities,
+    settings = {
+        codelens = { enable = true },
+        inlayHints = { enable = true },
+        syntaxDocumentation = { enable = true },
+        duneDiagnostics = { enable = true },
+        extendedHover = { enable = true },
+        merlinJumpCodeActions = { enable = true },
+    },
 }
 
 require("lspconfig").gopls.setup({
@@ -241,6 +246,14 @@ vim.api.nvim_create_autocmd('BufWritePre', {
         vim.lsp.buf.format({async = false})
     end,
     group = vim.api.nvim_create_augroup('GoFormatting', {}),
+})
+
+vim.api.nvim_create_autocmd('BufWritePre', {
+    pattern = { '*.ml' },
+    callback = function()
+        vim.lsp.buf.format({async = false})
+    end,
+    group = vim.api.nvim_create_augroup('OcamlFormatting', {}),
 })
 
 vim.api.nvim_create_autocmd('BufWritePost', {
@@ -362,7 +375,20 @@ vim.opt.smartindent = true
 
 vim.opt.wrap = false
 
-vim.api.nvim_set_option("clipboard", "unnamedplus")
+-- vim.api.nvim_set_option("clipboard", "unnamedplus")
+vim.opt.clipboard = "unnamedplus"
+vim.g.clipboard = {
+    name = "xsel",
+    copy = {
+        ["+"] = "xsel --nodetach -i -b",
+        ["*"] = "xsel --nodetach -i -p",
+    },
+    paste = {
+        ["+"] = "xsel  -o -b",
+        ["*"] = "xsel  -o -b",
+    },
+    cache_enabled = 1,
+}
 
 vim.opt.completeopt = {"menu", "menuone", "noselect"}
 
