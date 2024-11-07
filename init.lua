@@ -286,7 +286,17 @@ vim.keymap.set("n", "<Leader>{", "<Cmd>lua require'harpoon.ui'.nav_prev()<CR>", 
 
 require('harpoon').setup()
 
-require('todo-comments').setup()
+require('todo-comments').setup({
+  keywords = {
+    FIX = { icon = "F ", color = "error", alt = { "FIXME", "BUG", "FIXIT", "ISSUE" } },
+    TODO = { icon = "T ", color = "info" },
+    HACK = { icon = "H ", color = "warning" },
+    WARN = { icon = "W ", color = "warning", alt = { "WARNING", "XXX" } },
+    PERF = { icon = "P ", alt = { "OPTIM", "PERFORMANCE", "OPTIMIZE" } },
+    NOTE = { icon = "N ", color = "hint", alt = { "INFO" } },
+    TEST = { icon = "? ", color = "test", alt = { "TESTING", "PASSED", "FAILED" } },
+  }
+})
 
 vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle)
 
