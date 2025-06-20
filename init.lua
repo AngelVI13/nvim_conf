@@ -80,6 +80,7 @@ require("lazy").setup({
 			vim.g.startuptime_tries = 10
 		end,
 	},
+    { "jannis-baum/vivify.vim" }
   },
   -- Configure any other settings here. See the documentation for more details.
   -- automatically check for plugin updates
