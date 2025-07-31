@@ -25,11 +25,10 @@ vim.g.maplocalleader = "\\"
 require("lazy").setup({
   spec = {
 	{ "blazkowolf/gruber-darker.nvim" },
-    -- { 'https://gitlab.com/madyanov/gruber.vim' },
-	-- { 'nvim-treesitter/nvim-treesitter', lazy = true },
+	{ 'nvim-treesitter/nvim-treesitter', lazy = true },
 	{ 'nvim-lua/plenary.nvim' },
 	{ 'BurntSushi/ripgrep' },
-
+	{ 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
 	{ 
 		"nvim-telescope/telescope.nvim",
 		dependencies = {
@@ -50,6 +49,7 @@ require("lazy").setup({
 
 			-- then load the extension
 			telescope.load_extension("live_grep_args")
+			telescope.load_extension("fzf")
 		end
 	},
     	{ "nvim-telescope/telescope.nvim" },
@@ -69,7 +69,6 @@ require("lazy").setup({
 		},
 	},
 	{ "nvim-telescope/telescope.nvim" },
-	{ "nvim-tree/nvim-web-devicons", lazy = true },
 	{ 'joerdav/templ.vim', lazy = true },
 	{
 		"dstein64/vim-startuptime",
@@ -80,7 +79,12 @@ require("lazy").setup({
 			vim.g.startuptime_tries = 10
 		end,
 	},
-    { "jannis-baum/vivify.vim" }
+    { "jannis-baum/vivify.vim" },
+    {
+        "mason-org/mason.nvim",
+        opts = {}
+    },
+    { "jubnzv/virtual-types.nvim", lazy = true },
   },
   -- Configure any other settings here. See the documentation for more details.
   -- automatically check for plugin updates
@@ -93,16 +97,16 @@ vim.cmd("colorscheme gruber-darker")
 
 -- ----------------
 
--- require'nvim-treesitter.configs'.setup {
---   -- Automatically install missing parsers when entering buffer
---   -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
---   auto_install = true,
--- 
---   highlight = {
---     -- `false` will disable the whole extension
---     enable = true,
---   },
--- }
+require'nvim-treesitter.configs'.setup {
+  -- Automatically install missing parsers when entering buffer
+  -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
+  auto_install = true,
+
+  highlight = {
+    -- `false` will disable the whole extension
+    enable = true,
+  },
+}
 
 
 -- LSP
@@ -188,6 +192,44 @@ local on_attach = function(client, bufnr)
   vim.keymap.set('n', '<leader>f', function() vim.lsp.buf.format { async = true } end, bufopts)
 end
 
+local ruff_formatting = function(client, bufnr)
+    local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
+    if client.supports_method("textDocument/formatting") then
+      vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
+      vim.api.nvim_create_autocmd("BufWritePre", {
+        group = augroup,
+        buffer = bufnr,
+        callback = function()
+          vim.lsp.buf.format({
+            async = false,
+          })
+
+          -- Ruff proved import organization via the linter rather than the formatter.
+          -- Call the corresponding code action here to get auto sort on save behavior analogous to e.g. clang-format.
+          -- See https://github.com/astral-sh/ruff/issues/8926 for reference
+          if client.name == "ruff" then
+            vim.lsp.buf.code_action({
+              context = { only = { "source.organizeImports" } },
+              apply = true,
+              buffer = bufnr,
+            })
+          end
+        end,
+      })
+    end
+end
+
+local custom_on_attach = function(client, bufnr)
+    on_attach(client, bufnr)
+
+    -- require("virtualtypes").on_attach(client, bufnr)
+end
+
+local py_on_attach = function(client, bufnr)
+    on_attach(client, bufnr)
+    ruff_formatting(client, bufnr)
+end
+
 local lsp_flags = {
   -- This is the default in Nvim 0.7+
   debounce_text_changes = 150,
@@ -196,7 +238,40 @@ require('lspconfig')['pyright'].setup{
     on_attach = on_attach,
     flags = lsp_flags,
     capabilities = capabilities,
+    settings = {
+        pyright = {
+            -- Using Ruff's import organizer
+            disableOrganizeImports = true,
+        },
+        python = {
+            analysis = {
+                -- Ignore all files for analysis to exclusively use Ruff for linting
+                ignore = { '*' },
+            },
+        },
+    },
 }
+
+require('lspconfig')['ruff'].setup{
+    on_attach = py_on_attach,
+    flags = lsp_flags,
+    capabilities = capabilities,
+}
+
+vim.api.nvim_create_autocmd("LspAttach", {
+  group = vim.api.nvim_create_augroup('lsp_attach_disable_ruff_hover', { clear = true }),
+  callback = function(args)
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    if client == nil then
+      return
+    end
+    if client.name == 'ruff' then
+      -- Disable hover in favor of Pyright
+      client.server_capabilities.hoverProvider = false
+    end
+  end,
+  desc = 'LSP: Disable hover capability from Ruff',
+})
 
 require('lspconfig')['zls'].setup{
     on_attach = on_attach,
@@ -205,7 +280,7 @@ require('lspconfig')['zls'].setup{
 }
 
 require('lspconfig')['ocamllsp'].setup{
-    on_attach = on_attach,
+    on_attach = custom_on_attach,
     flags = lsp_flags,
     capabilities = capabilities,
     settings = {
@@ -301,14 +376,10 @@ require('todo-comments').setup({
 
 vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle)
 
--- this is for diagnositcs signs on the line number column
--- use this to beautify the plain E W signs to more fun ones
--- !important nerdfonts needs to be setup for this to work in your terminal
-local signs = { Error = "E ", Warn = "W ", Hint = "H ", Info = "I " }
-for type, icon in pairs(signs) do
-    local hl = "DiagnosticSign" .. type
-    vim.fn.sign_define(hl, { text = icon, texthl= hl, numhl = hl })
-end
+vim.diagnostic.config({
+  -- virtual_lines = {},
+  virtual_text = {}
+})
 
 
 vim.api.nvim_create_user_command('CenterWindow',
