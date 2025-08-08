@@ -250,12 +250,14 @@ require('lspconfig')['pyright'].setup{
             },
         },
     },
+    offset_encoding = "utf-8",
 }
 
 require('lspconfig')['ruff'].setup{
     on_attach = py_on_attach,
     flags = lsp_flags,
     capabilities = capabilities,
+    offset_encoding = "utf-8",
 }
 
 vim.api.nvim_create_autocmd("LspAttach", {
@@ -339,6 +341,15 @@ vim.api.nvim_create_autocmd('BufWritePost', {
         vim.fn.execute(":e")
     end,
     group = vim.api.nvim_create_augroup('GoLinesFormatting', {}),
+})
+
+vim.api.nvim_create_autocmd('BufWritePost', {
+    pattern = { '*.html', '*.css' },
+    callback = function()
+        vim.fn.execute("!prettier -w " .. vim.fn.expand("%"))
+        vim.fn.execute(":e")
+    end,
+    group = vim.api.nvim_create_augroup('WebFormatting', {}),
 })
 
 -- additional filetypes
