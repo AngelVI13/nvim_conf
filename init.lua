@@ -346,6 +346,10 @@ vim.api.nvim_create_autocmd('BufWritePost', {
 vim.api.nvim_create_autocmd('BufWritePost', {
     pattern = { '*.html', '*.css' },
     callback = function()
+        local filename = vim.fn.expand("%:t")  -- just the tail name
+        if filename:match("%.eml%.html$") then
+            return  -- skip Prettier for .eml.html files
+        end
         vim.fn.execute("!prettier -w " .. vim.fn.expand("%"))
         vim.fn.execute(":e")
     end,
