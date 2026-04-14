@@ -25,7 +25,7 @@ vim.g.maplocalleader = "\\"
 require("lazy").setup({
   spec = {
 	{ "blazkowolf/gruber-darker.nvim" },
-	{ 'nvim-treesitter/nvim-treesitter', lazy = true },
+	{ 'nvim-treesitter/nvim-treesitter', lazy = false, build = ':TSUpdate'},
 	{ 'nvim-lua/plenary.nvim' },
 	{ 'BurntSushi/ripgrep' },
 	{ 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
@@ -55,8 +55,6 @@ require("lazy").setup({
     	{ "nvim-telescope/telescope.nvim" },
 	{ 'ThePrimeagen/harpoon' },
 	{ "folke/todo-comments.nvim" },
-	{ 'sbdchd/neoformat' },
-	{ 'mbbill/undotree' },
 	{ 'neovim/nvim-lspconfig' },
 	{ 'hrsh7th/nvim-cmp',
 		-- lazy = true,
@@ -91,23 +89,14 @@ require("lazy").setup({
   -- checker = { enabled = true },
 })
 
-vim.opt.background = "dark"
--- vim.cmd("colorscheme gruber")
-vim.cmd("colorscheme gruber-darker")
-
--- ----------------
-
-require'nvim-treesitter.configs'.setup {
-  -- Automatically install missing parsers when entering buffer
-  -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
-  auto_install = true,
-
-  highlight = {
-    -- `false` will disable the whole extension
-    enable = true,
-  },
+require('nvim-treesitter').setup {
+  -- Directory to install parsers and queries to (prepended to `runtimepath` to have priority)
+  install_dir = vim.fn.stdpath('data') .. '/site',
+  highlight = { enable = true }
 }
 
+vim.opt.background = "dark"
+-- vim.cmd("colorscheme gruber")
 
 -- LSP
 -- Set up nvim-cmp.
@@ -193,30 +182,21 @@ local on_attach = function(client, bufnr)
 end
 
 local ruff_formatting = function(client, bufnr)
-    local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
-    if client.supports_method("textDocument/formatting") then
-      vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
-      vim.api.nvim_create_autocmd("BufWritePre", {
-        group = augroup,
-        buffer = bufnr,
-        callback = function()
-          vim.lsp.buf.format({
-            async = false,
-          })
+    local bufopts = { noremap=true, silent=true, buffer=bufnr }
+    vim.keymap.set('n', '<leader>f', function() 
+        vim.lsp.buf.format { async = false } 
 
-          -- Ruff proved import organization via the linter rather than the formatter.
-          -- Call the corresponding code action here to get auto sort on save behavior analogous to e.g. clang-format.
-          -- See https://github.com/astral-sh/ruff/issues/8926 for reference
-          if client.name == "ruff" then
+        -- Ruff proved import organization via the linter rather than the formatter.
+        -- Call the corresponding code action here to get auto sort on save behavior analogous to e.g. clang-format.
+        -- See https://github.com/astral-sh/ruff/issues/8926 for reference
+        if client.name == "ruff" then
             vim.lsp.buf.code_action({
               context = { only = { "source.organizeImports" } },
               apply = true,
               buffer = bufnr,
             })
-          end
-        end,
-      })
-    end
+        end
+    end, bufopts)
 end
 
 local custom_on_attach = function(client, bufnr)
@@ -228,37 +208,74 @@ end
 local py_on_attach = function(client, bufnr)
     on_attach(client, bufnr)
     ruff_formatting(client, bufnr)
+    -- this fixes issues with gq on python files
+    vim.bo[bufnr].formatexpr = nil
 end
 
 local lsp_flags = {
   -- This is the default in Nvim 0.7+
   debounce_text_changes = 150,
 }
-require('lspconfig')['pyright'].setup{
+
+local ahk2_configs = {
+  autostart = true,
+  cmd = {
+    "node",
+    vim.fn.expand("$HOME/Documents/vscode-autohotkey2-lsp/server/dist/server.js"),
+    "--stdio"
+  },
+  filetypes = { "ahk", "autohotkey", "ah2" },
+  init_options = {
+    locale = "en-us",
+    InterpreterPath = "/mnt/c/Program Files/AutoHotkey/v2/AutoHotkey.exe",
+    -- Same as initializationOptions for Sublime Text4, convert json literal to lua dictionary literal
+  },
+  single_file_support = true,
+  flags = lsp_flags,
+  capabilities = capabilities,
+  on_attach = on_attach,
+}
+
+
+-- local configs = require "lspconfig.configs"
+-- configs["ahk2"] = { default_config = ahk2_configs }
+-- require("lspconfig")["ahk2"].setup({})
+--
+-- require('lspconfig')['pyright'].setup{
+--     on_attach = on_attach,
+--     flags = lsp_flags,
+--     capabilities = capabilities,
+--     settings = {
+--         pyright = {
+--             -- Using Ruff's import organizer
+--             disableOrganizeImports = true,
+--         },
+--         python = {
+--             analysis = {
+--                 -- Ignore all files for analysis to exclusively use Ruff for linting
+--                 ignore = { '*' },
+--             },
+--         },
+--     },
+--     offset_encoding = "utf-8",
+-- }
+--
+vim.lsp.config('ty', {
     on_attach = on_attach,
     flags = lsp_flags,
     capabilities = capabilities,
-    settings = {
-        pyright = {
-            -- Using Ruff's import organizer
-            disableOrganizeImports = true,
-        },
-        python = {
-            analysis = {
-                -- Ignore all files for analysis to exclusively use Ruff for linting
-                ignore = { '*' },
-            },
-        },
-    },
     offset_encoding = "utf-8",
-}
+})
+vim.lsp.enable('ty')
 
-require('lspconfig')['ruff'].setup{
+vim.lsp.config('ruff', {
     on_attach = py_on_attach,
     flags = lsp_flags,
     capabilities = capabilities,
     offset_encoding = "utf-8",
-}
+})
+
+vim.lsp.enable('ruff')
 
 vim.api.nvim_create_autocmd("LspAttach", {
   group = vim.api.nvim_create_augroup('lsp_attach_disable_ruff_hover', { clear = true }),
@@ -275,13 +292,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
   desc = 'LSP: Disable hover capability from Ruff',
 })
 
-require('lspconfig')['zls'].setup{
-    on_attach = on_attach,
-    flags = lsp_flags,
-    capabilities = capabilities,
-}
-
-require('lspconfig')['ocamllsp'].setup{
+vim.lsp.config('ocamllsp', {
     on_attach = custom_on_attach,
     flags = lsp_flags,
     capabilities = capabilities,
@@ -293,9 +304,10 @@ require('lspconfig')['ocamllsp'].setup{
         extendedHover = { enable = true },
         merlinJumpCodeActions = { enable = true },
     },
-}
+})
+vim.lsp.enable('ocamllsp')
 
-require("lspconfig").gopls.setup({
+vim.lsp.config("gopls", {
 	cmd = { "gopls" },
 	settings = {
 		gopls = {
@@ -316,6 +328,7 @@ require("lspconfig").gopls.setup({
     flags = lsp_flags,
     capabilities = capabilities,
 })
+vim.lsp.enable('gopls')
 
 -- TODO: make a mechanism to switch this on and off
 vim.api.nvim_create_autocmd('BufWritePre', {
@@ -357,12 +370,12 @@ vim.api.nvim_create_autocmd('BufWritePost', {
 })
 
 -- additional filetypes
-vim.filetype.add({
- extension = {
-  templ = "templ",
- },
-})
-require('lspconfig').templ.setup{}
+-- vim.filetype.add({
+--  extension = {
+--   templ = "templ",
+--  },
+-- })
+-- require('lspconfig').templ.setup{}
 
 local opts = { noremap=true, silent=true }
 vim.keymap.set("n", "<Leader>H", "<Cmd>lua require'harpoon.mark'.add_file()<CR>", opts)
@@ -449,7 +462,7 @@ nnoremap("<leader>fh", "<cmd>lua require('telescope.builtin').help_tags()<cr>")
 nnoremap("<leader>Q", "<cmd>e ~/.config/nvim<cr>")
 
 nnoremap("<leader>z", "<cmd>:60 vsplit .<cr><C-w>l")
-nnoremap("<leader>Z", "<C-w>o")
+nnoremap("<leader>Z", "<cmd>:40 vsplit .<cr><C-w>l")
 
 nnoremap("<leader>o", "<cmd>:copen 5<cr>")
 
@@ -492,8 +505,15 @@ vim.g.clipboard = {
 
 vim.opt.completeopt = {"menu", "menuone", "noselect"}
 
-vim.opt.colorcolumn={"80", "90", "120"}
+vim.opt.colorcolumn={"90", "120"}
 vim.opt.updatetime=250
 
 vim.opt.grepprg = "rg -nH"
+vim.opt.spelllang = 'en_us'
+vim.opt.spell = true
 
+vim.api.nvim_create_autocmd("VimEnter", {
+  callback = function()
+    vim.cmd("colorscheme gruber-darker")
+  end,
+})
