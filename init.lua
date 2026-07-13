@@ -153,6 +153,7 @@ vim.keymap.set('n', '<leader>[', vim.diagnostic.goto_prev, opts)
 vim.keymap.set('n', '<leader>]', vim.diagnostic.goto_next, opts)
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, opts)
 vim.keymap.set('n', '<leader>t', "<cmd>TodoTelescope<cr>", opts)
+vim.keymap.set('n', '<leader>T', "<cmd>terminal<cr>", opts)
 
 -- Use an on_attach function to only map the following keys
 -- after the language server attaches to the current buffer
@@ -184,7 +185,7 @@ end
 local ruff_formatting = function(client, bufnr)
     local bufopts = { noremap=true, silent=true, buffer=bufnr }
     vim.keymap.set('n', '<leader>f', function() 
-        vim.lsp.buf.format { async = false } 
+        vim.lsp.buf.format { async = false, bufnr = bufnr } 
 
         -- Ruff proved import organization via the linter rather than the formatter.
         -- Call the corresponding code action here to get auto sort on save behavior analogous to e.g. clang-format.
@@ -442,6 +443,7 @@ nnoremap = bind("n")
 vnoremap = bind("v")
 xnoremap = bind("x")
 inoremap = bind("i")
+tnoremap = bind("t")
 
 nnoremap("<leader>D", "<cmd>Ex<CR>")
 
@@ -465,6 +467,7 @@ nnoremap("<leader>z", "<cmd>:60 vsplit .<cr><C-w>l")
 nnoremap("<leader>Z", "<cmd>:40 vsplit .<cr><C-w>l")
 
 nnoremap("<leader>o", "<cmd>:copen 5<cr>")
+tnoremap("jk", "<C-\\><C-n>")
 
 -- this remap makes is so that i can paste the same thing multiple times but 
 -- it makes pasting extra slow
@@ -517,3 +520,5 @@ vim.api.nvim_create_autocmd("VimEnter", {
     vim.cmd("colorscheme gruber-darker")
   end,
 })
+
+vim.opt.runtimepath:append(',/home/angel/.opam/default/share/ocp-indent/vim')
