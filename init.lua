@@ -82,7 +82,6 @@ require("lazy").setup({
         "mason-org/mason.nvim",
         opts = {}
     },
-    { "jubnzv/virtual-types.nvim", lazy = true },
   },
   -- Configure any other settings here. See the documentation for more details.
   -- automatically check for plugin updates
@@ -153,7 +152,7 @@ vim.keymap.set('n', '<leader>[', vim.diagnostic.goto_prev, opts)
 vim.keymap.set('n', '<leader>]', vim.diagnostic.goto_next, opts)
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, opts)
 vim.keymap.set('n', '<leader>t', "<cmd>TodoTelescope<cr>", opts)
-vim.keymap.set('n', '<leader>T', "<cmd>terminal<cr>", opts)
+vim.keymap.set('n', '<leader>T', "<cmd>tabe +term<cr>", opts)
 
 -- Use an on_attach function to only map the following keys
 -- after the language server attaches to the current buffer
@@ -179,7 +178,7 @@ local on_attach = function(client, bufnr)
   end, bufopts)
   vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, bufopts)
   vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, bufopts)
-  vim.keymap.set('n', '<leader>f', function() vim.lsp.buf.format { async = true } end, bufopts)
+  vim.keymap.set('n', '<leader>F', function() vim.lsp.buf.format { async = true } end, bufopts)
 end
 
 local ruff_formatting = function(client, bufnr)
@@ -198,12 +197,6 @@ local ruff_formatting = function(client, bufnr)
             })
         end
     end, bufopts)
-end
-
-local custom_on_attach = function(client, bufnr)
-    on_attach(client, bufnr)
-
-    -- require("virtualtypes").on_attach(client, bufnr)
 end
 
 local py_on_attach = function(client, bufnr)
@@ -261,20 +254,56 @@ local ahk2_configs = {
 --     offset_encoding = "utf-8",
 -- }
 --
-vim.lsp.config('ty', {
+local function python_lsp(tool)
+    local executables = {}
+    return {
+        root_dir = function(bufnr, on_dir)
+            local pyenv_root = vim.env.PYENV_ROOT or (vim.env.HOME .. "/.pyenv")
+            local version = vim.fn.system({ pyenv_root .. "/bin/pyenv", "latest", "-k", "3.12" })
+            if vim.v.shell_error ~= 0 then
+                vim.notify("Python LSP: unable to find an installed pyenv Python 3.12: " .. version, vim.log.levels.ERROR)
+                return
+            end
+            local python_root = pyenv_root .. "/versions/" .. vim.trim(version)
+            local result = vim.system({
+                python_root .. "/bin/python",
+                vim.fn.stdpath("config") .. "/python_lsp.py",
+                vim.api.nvim_buf_get_name(bufnr),
+                tool,
+                python_root,
+            }, { text = true }):wait()
+            if result.code ~= 0 then
+                vim.notify(vim.trim(result.stderr), vim.log.levels.ERROR)
+                return
+            end
+            local resolved = vim.json.decode(result.stdout)
+            executables[resolved.root] = resolved.executable
+            on_dir(resolved.root)
+        end,
+        cmd = function(dispatchers, config)
+            return vim.lsp.rpc.start({ executables[config.root_dir], "server" }, dispatchers, {
+                cwd = config.cmd_cwd,
+                env = config.cmd_env,
+                detached = config.detached,
+            })
+        end,
+    }
+end
+
+vim.lsp.config('ty', vim.tbl_extend('force', python_lsp('ty'), {
     on_attach = on_attach,
     flags = lsp_flags,
     capabilities = capabilities,
     offset_encoding = "utf-8",
-})
+}))
 vim.lsp.enable('ty')
 
-vim.lsp.config('ruff', {
+vim.lsp.config('ruff', vim.tbl_extend('force', python_lsp('ruff'), {
     on_attach = py_on_attach,
     flags = lsp_flags,
     capabilities = capabilities,
     offset_encoding = "utf-8",
-})
+}))
 
 vim.lsp.enable('ruff')
 
@@ -358,7 +387,7 @@ vim.api.nvim_create_autocmd('BufWritePost', {
 })
 
 vim.api.nvim_create_autocmd('BufWritePost', {
-    pattern = { '*.html', '*.css' },
+    pattern = { '*.html', '*.css', '*.js' },
     callback = function()
         local filename = vim.fn.expand("%:t")  -- just the tail name
         if filename:match("%.eml%.html$") then
@@ -451,6 +480,8 @@ nnoremap("<leader>D", "<cmd>Ex<CR>")
 nnoremap("<C-]>", "<C-]>zz")
 nnoremap("<C-O>", "<C-O>zz")
 nnoremap("<C-I>", "<C-I>zz")
+nnoremap("<C-h>", "<cmd>tabp<cr>")
+nnoremap("<C-l>", "<cmd>tabn<cr>")
 
 inoremap("jk", "<C-[>")
 
@@ -467,6 +498,8 @@ nnoremap("<leader>z", "<cmd>:60 vsplit .<cr><C-w>l")
 nnoremap("<leader>Z", "<cmd>:40 vsplit .<cr><C-w>l")
 
 nnoremap("<leader>o", "<cmd>:copen 5<cr>")
+nnoremap("<leader>e]", "<cmd>:cnext<cr>")
+nnoremap("<leader>e[", "<cmd>:cprev<cr>")
 tnoremap("jk", "<C-\\><C-n>")
 
 -- this remap makes is so that i can paste the same thing multiple times but 
