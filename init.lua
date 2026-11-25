@@ -1,3 +1,6 @@
+vim.g.clipboard = "xsel"
+vim.opt.clipboard = "unnamedplus"
+
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
@@ -523,21 +526,6 @@ vim.opt.incsearch = true
 vim.opt.smartindent = true
 
 vim.opt.wrap = false
-
--- vim.api.nvim_set_option("clipboard", "unnamedplus")
-vim.opt.clipboard = "unnamedplus"
-vim.g.clipboard = {
-    name = "xsel",
-    copy = {
-        ["+"] = "xsel --nodetach -i -b",
-        ["*"] = "xsel --nodetach -i -p",
-    },
-    paste = {
-        ["+"] = "xsel  -o -b",
-        ["*"] = "xsel  -o -b",
-    },
-    cache_enabled = 1,
-}
 
 vim.opt.completeopt = {"menu", "menuone", "noselect"}
 
